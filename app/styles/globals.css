@@ -1,0 +1,251 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 
+  Note: The styles for this gradient grid background is heavily inspired by the creator of this amazing site (https://dub.sh) – all credits go to them! 
+*/
+.login {
+  width: 400px;
+  height: 700px;
+  /* background: #fae64c; */
+  border-radius: 4px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+.dashboard {
+  width: 400px;
+  height: 700px;
+  background: #fbfbfb;
+  border-radius: 4px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+.chat-back {
+  width: 474px;
+  height: 474px;
+  /* background: #afc0cf; */
+}
+.main {
+  width: 100vw;
+  min-height: 100vh;
+  position: fixed;
+  display: flex;
+  justify-content: center;
+  /* padding: 120px 24px 160px 24px; */
+  pointer-events: none;
+}
+
+.main:before {
+  position: absolute;
+  content: "";
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  top: 0;
+}
+
+.main:after {
+  content: "";
+  z-index: 1;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  /* opacity: 0.4; */
+  filter: invert(1);
+}
+
+.gradient {
+  /* height: fit-content; */
+  /* z-index: 3; */
+  /* width: 100%; */
+  /* max-width: 640px; */
+  background-image: radial-gradient(
+      at 27% 37%,
+      hsla(215, 98%, 61%, 1) 0px,
+      transparent 0%
+    ),
+    radial-gradient(at 97% 21%, hsla(125, 98%, 72%, 0.5) 0px, transparent 50%),
+    radial-gradient(at 52% 99%, hsla(354, 98%, 61%, 0.5) 0px, transparent 50%),
+    radial-gradient(at 10% 29%, hsla(256, 96%, 67%, 0.5) 0px, transparent 50%),
+    radial-gradient(at 97% 96%, hsla(38, 60%, 74%, 0.5) 0px, transparent 50%),
+    radial-gradient(at 33% 50%, hsla(222, 67%, 73%, 0.5) 0px, transparent 50%),
+    radial-gradient(at 79% 53%, hsla(343, 68%, 79%, 0.5) 0px, transparent 50%);
+  /* position: absolute; */
+  /* content: ""; */
+  /* width: 100%; */
+  /* height: 100%; */
+  /* filter: blur(100px) saturate(150%); */
+  /* top: 80px; */
+}
+
+@media screen and (max-width: 640px) {
+  .main {
+    padding: 0;
+  }
+}
+.main {
+  padding: 0;
+}
+/* Tailwind Styles */
+
+.app {
+  /* @apply relative z-10 flex justify-center items-center flex-col max-w-7xl mx-auto sm:px-16 px-6; */
+  @apply relative z-10 flex flex-col mx-auto;
+}
+
+.flex-center {
+  @apply flex justify-center items-center;
+}
+
+.flex-start {
+  @apply flex justify-start items-start;
+}
+
+.flex-end {
+  @apply flex justify-end items-center;
+}
+
+.flex-between {
+  @apply flex justify-between items-center;
+}
+
+.all-initial {
+  all: initial;
+}
+
+.all {
+  display: flex;
+  /* flex-direction: row;
+  gap: 40px; */
+  justify-content: center;
+}
+
+.user_id_container {
+  display: flex;
+  flex-direction: row;
+  gap: 1%;
+  margin-bottom: 5px;
+}
+.user_name {
+  box-sizing: border-box;
+  width: 79%;
+  padding: 5px 17px;
+  border-radius: 4px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+.btn_enter {
+  width: 20%;
+  background: #fae64c;
+  border-radius: 4px;
+  border: none;
+  font-size: 18px;
+  font-family: Noto Sans;
+  padding: 5px 14px;
+}
+
+.right-section {
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+}
+.left-section {
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+}
+
+.background-left {
+  /* width: 474px; */
+  height: 566px;
+  background: #afc0cf;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  border: 1px #afc0cf solid;
+  overflow: auto;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+.input_layout {
+  /* width: 474px; */
+  height: 190px;
+  left: 0px;
+  top: 566px;
+  background: white;
+  border-bottom-right-radius: 10px;
+  border-bottom-left-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.message {
+  width: 468px;
+  height: 130px;
+  resize: none;
+  border: none;
+}
+
+.send-box {
+  display: flex;
+  background: #fae64c;
+  border-radius: 4px;
+  border: none;
+  font-size: 15px;
+  font-family: Noto Sans;
+  text-align: center;
+  padding: 1px 8px;
+  margin-right: 10px;
+}
+
+.user-chat-box {
+  padding: 9px 10px 8px 10px;
+  border-radius: 10px;
+}
+.left-container {
+}
+.left-id {
+  display: flex;
+  padding-left: 10px;
+  padding-top: 18px;
+}
+
+.chat-container {
+  /* 시간 + 톡 박스*/
+  padding: 7px 7px;
+  display: flex;
+  align-items: flex-end;
+}
+.line-right {
+  justify-content: flex-end;
+}
+
+.time-box {
+  min-width: 100px;
+  gap: 0.4px;
+  color: #00000080;
+  padding-left: 5px;
+  font-size: 12px;
+}
+.time-box-right {
+  min-width: 100px;
+  padding-right: 5px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.4px;
+  color: #00000080;
+  font-size: 12px;
+}
+.color-yellow {
+  background-color: #fae64c;
+}
+.color-white {
+  background-color: white;
+}
+
+textarea:focus {
+  outline: none;
+}
+textarea {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
