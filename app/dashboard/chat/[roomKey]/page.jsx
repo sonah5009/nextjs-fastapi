@@ -1,15 +1,24 @@
 // app/chat/[roomKey]/page.jsx
+// TODO: replyKey messageKey 가져오는 함수 제작
 "use client";
 import React, { useState, useEffect, useCallback } from "react";
 import { useRef } from "react";
 import axios from "axios";
 import { usePathname, useSearchParams } from "next/navigation";
+import { GoPaperclip } from "react-icons/go";
+import Photo from "@/components/chat/Photo";
+import PhotoBtn from "@/components/chat/PhotoBtn";
+import VideoBtn from "@/components/chat/VideoBtn";
+import Video from "@/components/chat/Video";
 
 const ChatPage = () => {
   const [currentUserKey, setCurrentUserKey] = useState(null);
   const [messages, setMessages] = useState(null);
   const [inputMessage, setInputMessage] = useState("");
   const backgroundLeftRef = useRef(null);
+  const [replyKey, setReplyKey] = useState(null);
+  const [contentPath, setContentPath] = useState(null); // video or image path
+  const [messageKey, setMessageKey] = useState(null); // video or image path
 
   const scrollToBottom = useCallback(() => {
     if (backgroundLeftRef.current) {
@@ -44,19 +53,26 @@ const ChatPage = () => {
   const roomKey = extractNumericPart(url);
 
   const fetchMessages = useCallback(async () => {
+    // chat 창에 text 나 photo, video 띄워야 댐.
     try {
-      const response = await axios.get("http://localhost:8000/messages", {
+      const response = await axios.get("http://localhost:8000/messages-all", {
         params: { room_key: roomKey },
       });
       setMessages(response.data);
+      console.log(response.data.message_key);
+      // setMessageKey(response.data)
+      // [{'user_key': msg[3], 'username': msg[9], "message": msg[1],
+      // "time_stamp": msg[4], "reply_key": msg[5], "message_type": msg[6],
+      // "message_key": msg[0]} for msg in messages]
       setTimeout(scrollToBottom, 0);
     } catch (error) {
-      console.error("Error fetching messages:", error);
+      console.error("Error fetching messages text:", error);
     }
     // }, [roomKey]); // Add roomKey as a dependency
   }, [roomKey, scrollToBottom]); // Add roomKey as a dependency
 
-  const handleSubmit = useCallback(
+  // send button
+  const sendBtn = useCallback(
     async (e) => {
       if (e) e.preventDefault(); // Prevent default form submission if event exists
       if (!inputMessage.trim()) return; // Prevent empty messages
@@ -68,6 +84,9 @@ const ChatPage = () => {
           message: inputMessage,
           user_key: userKey,
           room_key: roomKey,
+          reply_key: replyKey,
+          message_type: 0,
+          content_path: contentPath,
         });
         setInputMessage("");
         await fetchMessages();
@@ -76,14 +95,45 @@ const ChatPage = () => {
         console.error("Error sending message:", error);
       }
     },
-    [inputMessage, roomKey, fetchMessages, scrollToBottom]
+    [
+      inputMessage,
+      roomKey,
+      replyKey,
+      contentPath,
+      fetchMessages,
+      scrollToBottom,
+    ]
   );
+  // send button: 엔터 키 사용 가능
   const handleKeyDown = (event) => {
     if (event.keyCode == 13 && !event.shiftKey) {
       event.preventDefault();
-      handleSubmit(event);
+      sendBtn(event);
     }
   };
+
+  const sendPhoto = useCallback(
+    async (e) => {
+      try {
+        const userKey = localStorage.getItem("user_key");
+        setCurrentUserKey(userKey);
+        await axios.post("http://localhost:8000/upload-photo", {
+          message: null,
+          user_key: userKey,
+          room_key: roomKey,
+          reply_key: replyKey,
+          message_type: 1,
+          content_path: contentPath,
+        });
+        await fetchMessages();
+      } catch (error) {
+        console.error("Error sending message:", error);
+      }
+    },
+    [roomKey, replyKey, contentPath, fetchMessages, scrollToBottom]
+  );
+  // vedio button
+
   useEffect(() => {
     const userKey = localStorage.getItem("user_key");
     setCurrentUserKey(userKey);
@@ -102,15 +152,13 @@ const ChatPage = () => {
       }
     };
   }, []);
-  // }, [fetchMessages]);
 
   const formatMessageWithBr = (message) => {
     return { __html: message.replace(/\n/g, "<br>") };
   };
-
   return (
     // Render chat room content
-    <div className="flex flex-col w-full h-full overflow-scroll bg-primary-skyblue">
+    <div className="flex flex-col w-full h-full bg-primary-skyblue">
       <div className="flex flex-col justify-between h-full ">
         <div className="w-full p-3 font-bold bg-primary-skyblue/90">
           Messages
@@ -123,31 +171,58 @@ const ChatPage = () => {
             <ul>
               {messages.map((message, index) => (
                 <li key={index}>
+                  {/* 왼쪽 상대방 챗 */}
                   {message.user_key != currentUserKey ? (
                     <div className="left-container">
                       <div className="left-id"> {message.username}</div>
-                      <div className="chat-container">
-                        <div
-                          className="break-words user-chat-box w-fit max-w-[200px] overflow-wrap color-white"
-                          dangerouslySetInnerHTML={formatMessageWithBr(
-                            message.message
-                          )}></div>
-                        <div className="time-box">
-                          {convertToReadableTime(message.time_stamp)}
+
+                      {message.message_type == 0 ? (
+                        <div className="chat-container">
+                          <div
+                            className="break-words user-chat-box w-fit max-w-[200px] overflow-wrap color-white"
+                            dangerouslySetInnerHTML={formatMessageWithBr(
+                              message.message
+                            )}></div>
+                          <div className="time-box">
+                            {convertToReadableTime(message.time_stamp)}
+                          </div>
                         </div>
-                      </div>
+                      ) : (
+                        // <div>{message.message_type}</div>
+                        <div>
+                          {message.message_type == 1 ? (
+                            // <div>images</div>
+                            <Photo />
+                          ) : (
+                            <div>videos</div>
+                          )}
+                        </div>
+                      )}
                     </div>
                   ) : (
+                    // 오른쪽 내 챗
                     <div className="chat-container line-right">
                       <div className="time-box-right">
                         {convertToReadableTime(message.time_stamp)}
                       </div>
-                      <div
-                        className="break-words user-chat-box w-fit max-w-[200px] overflow-wrap color-yellow"
-                        dangerouslySetInnerHTML={formatMessageWithBr(
-                          message.message
-                        )}
-                      />
+                      {message.message_type == 1 ? (
+                        <div
+                          className="break-words user-chat-box w-fit max-w-[200px] overflow-wrap color-yellow"
+                          dangerouslySetInnerHTML={formatMessageWithBr(
+                            message.message
+                          )}
+                        />
+                      ) : (
+                        <div>
+                          {message.message_type == 1 ? (
+                            // <div>images</div>
+                            <Photo />
+                          ) : (
+                            // <Video />
+                            <Photo />
+                          )}
+                        </div>
+                      )}
                     </div>
                   )}
                 </li>
@@ -169,13 +244,25 @@ const ChatPage = () => {
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
               onKeyDown={handleKeyDown}></textarea>
-            <button
-              type="submit"
-              className="send-box"
-              id="btn_send"
-              onSubmit={handleSubmit}>
-              Send
-            </button>
+            <div className="flex flex-row justify-between w-full">
+              <button className="pl-3 text-slate-800/40 flex-center hover:text-gray-700">
+                <VideoBtn />
+              </button>
+              <button
+                className="pl-3 text-slate-800/40 flex-center hover:text-gray-700"
+                onSubmit={sendPhoto}>
+                {/* <PhotoBtn roomKey={roomKey} /> */}
+                PhotoBtn
+              </button>
+              <button
+                type="submit"
+                className="send-box"
+                id="btn_send"
+                onSubmit={sendBtn}>
+                Send
+              </button>
+            </div>
+
             <div className="mb-2" />
           </form>
         </div>
